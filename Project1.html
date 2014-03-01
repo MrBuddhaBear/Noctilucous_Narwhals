@@ -12,8 +12,8 @@
 			fill: none;
 			stroke: black;
 			shape-rendering: crispEdges;
-			font-family: sans-serif;
-			font-size: 14px;
+			font-family: Alegreya Sans SC;
+			font-size: 12px;
 			font-color: black;
 		}
 		.axis text {
@@ -23,8 +23,8 @@
 			opacity: 0;
 		}
 		.xAxis text {
-			font-family: Concert One;
-			font-size: 14px;
+			font-family: Alegreya Sans SC;
+			font-size: 12px;
 			font-color: black;
 			opacity: 1;
 		}
@@ -41,6 +41,16 @@
 			stroke: black;
 			stroke-width: 2px;
 			fill: white;
+		}
+		.detail {
+			font-family: Alegreya Sans SC;
+			font-size: 20px;
+			font-color: black;
+		}
+		.title {
+			font-family: Alegreya Sans SC;
+			font-size: 50px;
+			font-color: black;
 		}
 	</style>
 </head>
@@ -92,15 +102,16 @@
 					.on("mouseout", function() {
 						d3.selectAll(".line").style({opacity:'1.0'});
 						d3.selectAll(".info").style({opacity: '0'});
+						d3.selectAll(".detail").style({opacity: '0'});
 					});
 
-		var svg = d3.select("#Country")
-					.append("svg")
-					.attr("width", 2*xPadding+xLength)
-					.attr("height", 3*yPadding+2*yLength)
-					.on("mouseout", function() {
-						d3.selectAll(".line").style({opacity:'1.0'});
-					});
+		//appending title
+		svg.append("text")
+			.attr("class", "title")
+			.attr("y", .9*yPadding)
+			.attr("x", .45*xLength)
+			.text("G20 Economies")
+			.style("text-aligh", "center");
 
 		//normalizing total GDP
 		var GDPMax = total[2012-1960];
@@ -170,7 +181,7 @@
 					.y0(function(d) {
 						if (countryIndex == 19) {
 							return baseline;
-							console.log(baseline);
+							// console.log(baseline);
 						} else {
 							return yScale(placement()*GDPScaler());
 						}
@@ -244,13 +255,16 @@
 
 		baseline = yScale(0);
 
+		var percentFormat = d3.format('%');
+		var moneyFormat = d3.format("$");
+
 		for (var i=19; i>0; i--) {
 			year = 1960;
 			countryIndex = i;
 			var name = data[0][countryIndex-1];
 			var printName = name.replace("_"," ");
 			var infoId = name+"info";
-			console.log(infoId);
+			// console.log(infoId);
 			svg.append("path")
 				.attr("d", middle(data[countryIndex]))
 				.attr("class", "line")
@@ -259,24 +273,49 @@
 				.attr("class", "info")
 				.attr("id",infoId)
 				.attr("x","130")
-				.attr("y","80")
+				.attr("y","120")
 				.text(printName)
+				.style({opacity: '0'});
+			var percent = percentFormat(data[countryIndex][2012-1960]) + " ";
+			var countryGDP = data[countryIndex][2012-1960]*total[2012-1960];
+			countryGDP = d3.round(countryGDP/1000000000000,1);
+			countryGDP = moneyFormat(countryGDP)+ " Trillion";
+			//console.log(percent);
+			//console.log(countryGDP);
+			var info2012 = countryGDP + "  (GDP in 2012)";
+			var info2012per = percent + "of total G20 GDP*";
+			//console.log(info2012);
+			svg.append("text")
+				.attr("class", "detail")
+				.attr("id",infoId)
+				.attr("x","130")
+				.attr("y","150")
+				.text(info2012)
+				.style({opacity: '0'});
+			svg.append("text")
+				.attr("class", "detail")
+				.attr("id",infoId)
+				.attr("x","130")
+				.attr("y","170")
+				.text(info2012per)
 				.style({opacity: '0'});
 		}
 
-		var testname = "there is an underscore after this -->_<--. Did it get removed?";
-		console.log(testname.replace("_"," "));
+
+		// var testname = "there is an underscore after this -->_<--. Did it get removed?";
+		// console.log(testname.replace("_"," "));
 
 		data[0].forEach(function (element, index) {
 			var id = "#"+element;
 			var infoId = id + "info";
-			console.log(infoId);
+			//console.log(infoId);
 			d3.selectAll(id)
 				.style("fill", randomColor())
 				.on("mouseover", function () {
 			        d3.selectAll(".line").style({opacity:'0.2'});
         			d3.selectAll(id).style({opacity:'1.0'});
         			d3.selectAll(".info").style({opacity: '0.0'});
+        			d3.selectAll(".detail").style({opacity: '0'});
         			d3.selectAll(infoId).style({opacity: '1.0'});
         			// d3.selectAll("#Country").text(id).
         			//console.log(output);style("color", "blue");
