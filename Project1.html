@@ -31,6 +31,12 @@
 		.line {
 			stroke: black;
 		}
+		.lineTop {
+			stroke: black;
+		}
+		.lineCompare {
+			stroke: black;
+		}
 		#removeLabel text {
 			opacity: 0;
 		}
@@ -120,6 +126,8 @@
 						d3.selectAll(".line").style({opacity:'1.0'});
 						d3.selectAll(".info").style({opacity: '0'});
 						d3.selectAll(".detail").style({opacity: '0'});
+						d3.selectAll(".lineTop").style({opacity: '1'});
+						d3.selectAll(".lineCompare").style({opacity: '0'});
 					});
 
 		//appending title
@@ -205,7 +213,7 @@
 					})
 					.y(function(d) {
 						if (compare) {
-							return yScale(d*GDPScaler());
+							return yScale(d*GDPScaler()/(data[19][2012-1960]));
 						} else {
 							return yScale((placement()+d)*GDPScaler());
 						}						
@@ -259,14 +267,16 @@
 			return "hsl(" + temp + ",100%,50%)";
 		}
 
+		//Appending Countries to Top Graph
 		compare = true;
 		for (var i=19; i>0; i--) {
 			year = 1960;
 			countryIndex = i;
 			svg.append("path")
 				.attr("d", middle(data[countryIndex]))
-				.attr("class", "line")
-				.attr("id", data[0][countryIndex-1]+"event");
+				.attr("class", "lineCompare")
+				.attr("id", data[0][countryIndex-1]+"compare")
+				.style({opacity: '0'});
 		};
 		//appending paths for upper graph
 		 compare = false;
@@ -275,8 +285,8 @@
 			countryIndex = i;
 			svg.append("path")
 				.attr("d", middle(data[countryIndex]))
-				.attr("class", "line")
-				.attr("id", data[0][countryIndex-1]);
+				.attr("class", "lineTop")
+				.attr("id", data[0][countryIndex-1]+"top");
 		};
 
 		//append axis
@@ -374,41 +384,42 @@
 
 		data[0].forEach(function (element, index) {
 			var id = "#"+element;
+			var idTop = id + "top";
 			var infoId = id + "info";
-			var idEvent = id + "event";
+			var idCompare = id + "compare";
 			var color = randomColor();
 			//console.log(infoId);
 			d3.selectAll(id)
 				.style("fill", color)
 				.on("mouseover", function () {
 			        d3.selectAll(".line").style({opacity:'0.1'});
-        			//d3.selectAll(id).style({opacity:'1.0'});
-        			d3.select("#United_Statesevent").style({opacity: '1'});
-        			d3.select(idEvent).style({opacity: '1'})
+			        d3.selectAll(".lineTop").style({opacity: '0'});
+        			d3.select(id).style({opacity:'1.0'});
+        			d3.select("#United_Statescompare")
+        				.style({opacity: '1'})
+        				.style("fill", "#c1c1c1");
+        			d3.select(idCompare).style({opacity: '1'})
+        			//country title appearence 
         			d3.selectAll(".info").style({opacity: '0.0'});
         			d3.selectAll(".detail").style({opacity: '0'});
         			d3.selectAll(infoId).style({opacity: '1.0'});
-        			// d3.selectAll("#Country").text(id).
-        			//console.log(output);style("color", "blue");
-        			// var output = id;
 				});
-			d3.selectAll(idEvent)
+			d3.selectAll(idTop)
+				.style("fill", color)
+				.on("mouseover", function() {
+			        d3.selectAll(".line").style({opacity:'0.1'});
+			        d3.selectAll(".lineTop").style({opacity: '0.1'});
+        			d3.select(id).style({opacity:'1.0'});
+        			d3.select(idTop).style({opacity: '1'})
+        			//country title appearence 
+        			d3.selectAll(".info").style({opacity: '0.0'});
+        			d3.selectAll(".detail").style({opacity: '0'});
+        			d3.selectAll(infoId).style({opacity: '1.0'});
+				})
+			d3.selectAll(idCompare)
 				.style("fill", color);
-
-
 		});
 
-		// //why doesn't this show up???????????
-		// dates.forEach(function(element, index) {
-		// 	event = element;
-		// 	eventPoints = [1.5*yPadding+2*yLength, GDPScale(total[event.year-1960])];
-		// 	console.log(event.year);
-		// 	svg.append("path")
-		// 		.attr("d", eventLine(eventPoints))
-		// 		.attr("class", "event")
-		// 		.style("stroke-width", "10px")
-		// 		.style("fill", "black");
-		// });
 	</script>
 </body>
 </html>
