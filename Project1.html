@@ -10,22 +10,26 @@
 
 	<style type="text/css">
 		.axis {
+			stroke: black;
+		}
+		.axis text {
+			stroke: none;
+			font-family: Alegreya Sans SC;
+			font-size: 14px;
+			font-color: black;
+		}
+		.axis path {
 			fill: none;
 			stroke: black;
 			shape-rendering: crispEdges;
-			font-family: Alegreya Sans SC;
-			font-size: 12px;
-			font-color: black;
 		}
-		.axis text {
-			fill: black;
-		}
-		.xAxis line {
-			opacity: 0;
+		.xAxis path {
+			fill: none;
+			shape-rendering: crispEdges;
 		}
 		.xAxis text {
 			font-family: Alegreya Sans SC;
-			font-size: 12px;
+			font-size: 14px;
 			font-color: black;
 			opacity: 1;
 		}
@@ -63,6 +67,11 @@
 			width: 10px;
 			fill: black;
 			opacity: 1;
+		}
+		.footnote {
+			font-family: Alegreya Sans SC;
+			font-size: 14px;
+			font-color: black;
 		}
 	</style>
 </head>
@@ -155,13 +164,12 @@
 		var yCompareScale = d3.scale.linear()
 							.domain([0,16])
 							.range([yPadding+yLength,yPadding]);
-
-
 		var list = [];
 		for (var i = 1960; i <= 2012; i++) {
     		list.push(i);
 		}
 		var xCompareScale = d3.scale.linear().domain([xPadding,xLength+xPadding]).range([1960,2012]);//ordinal().domain([xPadding,xLength+xPadding]).range(list);
+
 
 		var GDPScaler = function () {
 			return total[year-1961]/GDPMax;
@@ -222,6 +230,16 @@
 			return year;
 		};
 
+		//My Rectangle:
+		var myRect = svg.append("rect")
+						.attr("x",0)
+						.attr("y",yPadding)
+						.attr("width",2)
+						.attr("height",250)
+						.style({opacity:'0.5'})
+						.attr('id',"myRect")
+						.attr('fill','deepskyblue');
+
 		//bottom of graph reference for lowest country
 		var baseline = yScale(0);
 
@@ -253,7 +271,7 @@
 					})
 					.y0(function() {
 						if ((countryIndex == 19)||compare) {
-							console.log(baseline);
+							//console.log(baseline);
 							return baseline;
 							//console.log(baseline);
 						} else {
@@ -324,26 +342,26 @@
 
 		//append axis
 		svg.append("g")
-			.attr("class", "axis")
+			.attr("class", "xAxis")
 			.attr("id", "xAxis")
-			.attr("transform", "translate(0,"+(1.4*yPadding+yLength)+")")
+			.attr("transform", "translate(0,"+(1.25*yPadding+yLength)+")")
 			.call(xAxis);
 
 		svg.append("g")
 			.attr("class", "axis")
-			.attr("id", "yAxisTop")
+			.attr("id", "percentAxis")
 			.attr("transform", "translate("+(xLength+1.2*xPadding)+", 0)")
 			.call(yAxis);
 
 		svg.append("g")
 			.attr("class", "axis")
-			.attr("id", "yAxisBottomRight")
+			.attr("id", "percentAxis")
 			.attr("transform", "translate("+(xLength+1.2*xPadding)+","+(yPadding+yLength)+")")
 			.call(yAxis);
 
 		svg.append("g")
 			.attr("class", "axis")
-			.attr("id", "yAxisBottomLeft")
+			.attr("id", "percentAxis")
 			.attr("transform", "translate("+(.8*xPadding)+","+(yPadding+yLength)+")")
 			.call(yAxisLeft);
 
@@ -357,6 +375,7 @@
 			.attr("class", "axis")
 			.attr("id", "compareAxis")
 			.attr("transform", "translate("+(.8*xPadding)+", 0)")
+			.style({opacity: '0'})
 			.call(yCompareAxis);
 
 
@@ -426,16 +445,41 @@
 		CaptureId = "";
 		mPos = 0;
 		newYear = 0;
+
 		data[0].forEach(function (element, index) {
 			var id = "#"+element;
 			var idTop = id + "top";
 			var infoId = id + "info";
 			var idCompare = id + "compare";
 			var color = randomColor();
+			var UScolor = "#c1c1c1";
+			if (index == 18) {
+				UScolor = color;
+			}
 			//console.log(infoId);
 			d3.selectAll(id)
 				.style("fill", color)
 				.on("mouseover", function () {
+					if (Clicked == 0){
+			        d3.selectAll(".line").style({opacity:'0.1'});
+			        d3.selectAll(".lineTop").style({opacity: '0'});
+        			d3.select(id).style({opacity:'1.0'});
+        			//displaying US comparison on top graph
+        			d3.select("#United_Statescompare")
+        				.style({opacity: '1'})
+        				.style("fill", UScolor);
+        			d3.select(idCompare).style({opacity: '1'})
+        			//switching top left axis
+        			d3.select("#GDPAxis").style({opacity: '0'});
+        			d3.select("#compareAxis").style({opacity: '1'});
+        			//country title appearence 
+        			d3.selectAll(".info").style({opacity: '0.0'});
+        			d3.selectAll(".detail").style({opacity: '0'});
+        			d3.selectAll(infoId).style({opacity: '1.0'});
+        			d3.select("#myRect").style({opacity:'0'});
+        			} else {
+        				//Hold mode, show only one other country than USA
+
 					if(Clicked==0){
 						//Move mode, show easily switch between multiple countries
 						 d3.selectAll(".line").style({opacity:'0.1'});
@@ -462,7 +506,8 @@
 						d3.select(CaptureId).style({opacity:'1'});
 						d3.select("#United_Statescompare")
         					.style({opacity: '1'})
-        					.style("fill", "#c1c1c1");
+        					.style("fill", UScolor);
+
         				d3.select(CaptureId+'compare').style({opacity: '1'})
         				//switching top left axis
         				d3.select("#GDPAxis").style({opacity: '0'});
@@ -478,6 +523,13 @@
         				var idx = data[0].indexOf(CaptureId.substr(1));
         				//alert(idx);
 
+        				var GDPUSA = data[19][newYear-1960];
+        				var GDPCountry = data[idx+1][newYear-1960];
+        				var ratio = GDPCountry/GDPUSA;
+        				var percentage = ratio*100+"%";
+        				//alert("shit");
+        				//alert(percentage);
+        			}
         				var GDPUSA = data[20][newYear-1960];
         				var GDPCountry = data[idx+1][newYear-1960];
         				var ratio = GDPCountry/GDPUSA;
@@ -530,6 +582,12 @@
 				.style("fill", color);
 		});
 
+		//footnote
+		svg.append("text")
+			.attr("class", "footnote")
+			.attr("x","30")
+			.attr("y", 2.5*yPadding+2*yLength)
+			.text("*The G20 includes the European Union (EU). However, it is not included in the graphs above. Thus, the precentages represent the portion of the combined GDP of the G20 minus the GDP of the EU.");
 	</script>
 </body>
 </html>
