@@ -128,6 +128,8 @@
 						d3.selectAll(".detail").style({opacity: '0'});
 						d3.selectAll(".lineTop").style({opacity: '1'});
 						d3.selectAll(".lineCompare").style({opacity: '0'});
+						d3.select("#compareAxis").style({opacity: '0'});
+						d3.select("#GDPAxis").style({opacity: '1'});
 					});
 
 		//appending title
@@ -147,6 +149,10 @@
 
 		var yGDPAxisScale = d3.scale.linear()
 							.domain([0,56])
+							.range([yPadding+yLength,yPadding]);
+
+		var yCompareScale = d3.scale.linear()
+							.domain([0,16])
 							.range([yPadding+yLength,yPadding]);
 
 		var GDPScaler = function () {
@@ -170,6 +176,12 @@
 		var yAxisLeft = d3.svg.axis().scale(yScale).orient("left").tickFormat(d3.format("%"));
 
 		var yGDPAxis = d3.svg.axis().scale(yGDPAxisScale).orient("left")
+			.ticks(5)
+			.tickFormat(function(d) {
+				return "$" + d + " Trillion";
+			});
+
+		var yCompareAxis = d3.svg.axis().scale(yCompareScale).orient("left")
 			.ticks(5)
 			.tickFormat(function(d) {
 				return "$" + d + " Trillion";
@@ -320,6 +332,13 @@
 			.attr("transform", "translate("+(.8*xPadding)+", 0)")
 			.call(yGDPAxis);
 
+		svg.append("g")
+			.attr("class", "axis")
+			.attr("id", "compareAxis")
+			.attr("transform", "translate("+(.8*xPadding)+", 0)")
+			.call(yCompareAxis);
+
+
 		//lower graph
 		GDPScaler = function() {
 			return 1;
@@ -395,10 +414,14 @@
 			        d3.selectAll(".line").style({opacity:'0.1'});
 			        d3.selectAll(".lineTop").style({opacity: '0'});
         			d3.select(id).style({opacity:'1.0'});
+        			//displaying US comparison on top graph
         			d3.select("#United_Statescompare")
         				.style({opacity: '1'})
         				.style("fill", "#c1c1c1");
         			d3.select(idCompare).style({opacity: '1'})
+        			//switching top left axis
+        			d3.select("#GDPAxis").style({opacity: '0'});
+        			d3.select("#compareAxis").style({opacity: '1'});
         			//country title appearence 
         			d3.selectAll(".info").style({opacity: '0.0'});
         			d3.selectAll(".detail").style({opacity: '0'});
