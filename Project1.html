@@ -9,22 +9,26 @@
 	<link href='http://fonts.googleapis.com/css?family=Alegreya+Sans+SC' rel='stylesheet' type='text/css'>
 	<style type="text/css">
 		.axis {
+			stroke: black;
+		}
+		.axis text {
+			stroke: none;
+			font-family: Alegreya Sans SC;
+			font-size: 14px;
+			font-color: black;
+		}
+		.axis path {
 			fill: none;
 			stroke: black;
 			shape-rendering: crispEdges;
-			font-family: Alegreya Sans SC;
-			font-size: 12px;
-			font-color: black;
 		}
-		.axis text {
-			fill: black;
-		}
-		.xAxis line {
-			opacity: 0;
+		.xAxis path {
+			fill: none;
+			shape-rendering: crispEdges;
 		}
 		.xAxis text {
 			font-family: Alegreya Sans SC;
-			font-size: 12px;
+			font-size: 14px;
 			font-color: black;
 			opacity: 1;
 		}
@@ -62,6 +66,11 @@
 			width: 10px;
 			fill: black;
 			opacity: 1;
+		}
+		.footnote {
+			font-family: Alegreya Sans SC;
+			font-size: 14px;
+			font-color: black;
 		}
 	</style>
 </head>
@@ -232,7 +241,7 @@
 					})
 					.y0(function() {
 						if ((countryIndex == 19)||compare) {
-							console.log(baseline);
+							//console.log(baseline);
 							return baseline;
 							//console.log(baseline);
 						} else {
@@ -299,26 +308,26 @@
 
 		//append axis
 		svg.append("g")
-			.attr("class", "axis")
+			.attr("class", "xAxis")
 			.attr("id", "xAxis")
-			.attr("transform", "translate(0,"+(1.4*yPadding+yLength)+")")
+			.attr("transform", "translate(0,"+(1.25*yPadding+yLength)+")")
 			.call(xAxis);
 
 		svg.append("g")
 			.attr("class", "axis")
-			.attr("id", "yAxisTop")
+			.attr("id", "percentAxis")
 			.attr("transform", "translate("+(xLength+1.2*xPadding)+", 0)")
 			.call(yAxis);
 
 		svg.append("g")
 			.attr("class", "axis")
-			.attr("id", "yAxisBottomRight")
+			.attr("id", "percentAxis")
 			.attr("transform", "translate("+(xLength+1.2*xPadding)+","+(yPadding+yLength)+")")
 			.call(yAxis);
 
 		svg.append("g")
 			.attr("class", "axis")
-			.attr("id", "yAxisBottomLeft")
+			.attr("id", "percentAxis")
 			.attr("transform", "translate("+(.8*xPadding)+","+(yPadding+yLength)+")")
 			.call(yAxisLeft);
 
@@ -332,6 +341,7 @@
 			.attr("class", "axis")
 			.attr("id", "compareAxis")
 			.attr("transform", "translate("+(.8*xPadding)+", 0)")
+			.style({opacity: '0'})
 			.call(yCompareAxis);
 
 
@@ -403,6 +413,10 @@
 			var infoId = id + "info";
 			var idCompare = id + "compare";
 			var color = randomColor();
+			var UScolor = "#c1c1c1";
+			if (index == 18) {
+				UScolor = color;
+			}
 			//console.log(infoId);
 			d3.selectAll(id)
 				.style("fill", color)
@@ -413,7 +427,7 @@
         			//displaying US comparison on top graph
         			d3.select("#United_Statescompare")
         				.style({opacity: '1'})
-        				.style("fill", "#c1c1c1");
+        				.style("fill", UScolor);
         			d3.select(idCompare).style({opacity: '1'})
         			//switching top left axis
         			d3.select("#GDPAxis").style({opacity: '0'});
@@ -439,6 +453,12 @@
 				.style("fill", color);
 		});
 
+		//footnote
+		svg.append("text")
+			.attr("class", "footnote")
+			.attr("x","30")
+			.attr("y", 2.5*yPadding+2*yLength)
+			.text("*The G20 includes the European Union (EU). However, it is not included in the graphs above. Thus, the precentages represent the portion of the combined GDP of the EU minus the GDP of the EU.");
 	</script>
 </body>
 </html>
